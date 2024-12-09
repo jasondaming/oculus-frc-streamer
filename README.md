@@ -1,9 +1,11 @@
 # QuestNav
-This project enables streaming Oculus VR headset pose information to an FRC robot using the Network Tables 4 (NT4) protocol. This pose information can be used by the robot control system to accurately map it's surroundings and navigate around a competition field, practice space, or any other location. QuestNav produces a more stable and reliable tracking pose than any other FRC vision solution (LimeLight, Photon Vision, etc.)
+This project enables streaming Oculus VR headset pose information to an FRC robot using the Network Tables 4 (NT4) protocol. This pose information can be used by the robot control system to accurately map its surroundings and navigate around a competition field, practice space, or any other location. QuestNav produces a more stable and reliable tracking pose than any other FRC vision solution (LimeLight, Photon Vision, etc.)
 
 ![Demo Video](docs/questnav-demo.gif)
 
 [Check out the full video here!](https://youtu.be/Mo0p1GGeasM)
+
+[Ask questions and get support in the Chief Delphi thread!](https://www.chiefdelphi.com/t/questnav-the-best-robot-pose-tracking-system-in-frc/476083)
 
 Using a VR headset for robot localization has several advantages:
 - Lower cost than most FRC vision solutions 
@@ -21,6 +23,10 @@ QuestNav requires the following to get started:
 2. Quest 3S headset
 	- *A Quest 3S headset is recommended due to its lower cost and excellent tracking performance. It's currently not clear whether the depth projector on the Quest 3 benefits FRC applications.*
 3. Supported USB-C to Ethernet + power passthrough adapter
+4. 3D printed mount that attaches the headset to your robot
+	- [Available on Printables.com!](https://www.printables.com/model/1100711-quest-3s-robot-mount)
+
+<img src="docs/quest3s-mount.jpeg" width="600"/>
 
 # Power Requirements
 
@@ -79,18 +85,21 @@ At it's heart, QuestNav is merely a VR app designed to push data to Network Tabl
 3. Configure the following settings on your Quest headset:
 	- Enable travel mode ([link](https://www.meta.com/help/quest/articles/in-vr-experiences/oculus-features/travel-mode/) to instructions)
 	- Set the display timeout to 4 hours in `Settings > General > Power > Display off`
+	- Enable battery saver mode in `Settings > General > Power > Battery saver mode`
 	- Disable WiFi in `Settings > WiFi`
-		- **NOTE:** Be sure to completely turn off WiFi, otherwise the headset will constantly disconnect from the robot network as it tries to look for the internet.
+		- **NOTE:** Be sure to completely turn off WiFi, otherwise the headset will constantly disconnect from the robot network as it tries to look for the internet
 	- Disable Bluetooth in `Settings > Bluetooth`
-	- Disable the guardian for development purposes `Settings > Advanced > Experimental Settings > Enable custom settings`
-4. Plug the headset into your PC and install the example .apk using MQDH
+		- **NOTE:** Disabling Bluetooth will break the companion app functionality
+	- Disable the guardian for development purposes `Settings > Advanced > Experimental Settings > Enable Custom Settings` and **TURN OFF** `Physical Space Features`, `MTP Notification`, and `Link Auto Connect`
+		- These settings might also be located in `Settings > Developer > Experimental Settings > Enable Custom Settings` on some older OS builds
+4. Plug the headset into your PC and install the example .apk using MQDH or adb (`adb install QuestNav.apk`)
 	- **NOTE!** The example app team number is hard-coded to 9999
 
 ## Once-Per-Boot Setup
-These setup steps are required *once per boot* and can be prevented by ensuring your headset remains powered on using an external battery.
+These setup steps are required *once per boot*. This setup process can be prevented by ensuring your headset remains powered on using an external battery.
 1. Plug the USB-Ethernet adapter into the USB port on the Quest headset
 2. Start the QuestNav app using MQDH or by selecting the app icon in the launcher
-3. Check that the Quest headset has connected to your robot and is writing pose data. 
+3. Check that the Quest headset has connected to your robot and is writing pose data
 
 # Unity Development Environment Setup
 ### Install Unity
@@ -103,8 +112,18 @@ These setup steps are required *once per boot* and can be prevented by ensuring 
 		- "Android SDK & NDK Tools"
 - Click "Install" and wait for the installation to finish
 
-### Install Quest Link
+### Optional: Install Visual Studio Unity Support
 
+The Unity installer may fail to install "Unity Support for Visual Studio" if you already have Visual Studio 2022 installed. In this case, you'll need to install it separately. 
+
+- Download the Visual Studio 2022 Community installer ([link](https://visualstudio.microsoft.com/downloads/?cid=learn-onpage-download-install-visual-studio-page-cta))
+- Run the installer and select `Modify`
+- Scroll down to the `Gaming` subsection and select `Game development with Unity`
+- Click `Install` and let the installer do its thing
+
+### Optional: Install Quest Link
+
+Installing Quest Link is not necessary, but may make 
 - Install the Quest Link software ([link](https://www.meta.com/help/quest/articles/headsets-and-accessories/oculus-rift-s/install-app-for-link/))
 
 ### Install Git for Windows
@@ -114,31 +133,42 @@ These setup steps are required *once per boot* and can be prevented by ensuring 
 ### Fork, clone, and import this repository into Unity
 
 The main editing window will only open if a project is active. 
+
 - Click `Add > Add project from disk` and select the unity subfolder in this repository
 - Click on the newly imported project
 - Wait for Unity to compile assets and open the main interface
 
-### Install the Git for Unity plugin
-
-Installing Git for Unity will make managing the Unity source code much easier. 
-- Follow the instructions on [this](https://github.com/spoiledcat/git-for-unity) page
-- Git for Unity should detect your forked repository
-
 ### Install the MessagePack plugin for Unity
 
 This package is required by the C# Network Tables library. 
+
 - Download the latest release with a `.unitypackage` extension from [here](https://github.com/MessagePack-CSharp/MessagePack-CSharp/releases/tag/v2.5.187)
 - In the main unity window, select `Assets > Import Package > Custom Package`
 - Browse to the package you downloaded and click `Import`
 
-### Explore the C# Code and Build The Project
+### Resolve any "recommended project setup tool" fixes
+
+Be sure to resolve any Project Setup Tool warnings that appear in the `Console` tab! You need to look for warnings in both the `PC` and `Android` tabs to successfully build your Unity project. 
+
+### Build your project using the OVR build tool
+
+- The build tool is located in `Meta > OVR Build > OVR Build APK...`
+- Set your desired OVR build path and click `Build`
+	- This tool prioritizes build speed above all else, so it will consume all CPU resources for a few minutes!
+- If everything works, then upload the .apk to your headset! 
+
+### Link Unity to Visual Studio for debugging
+
+The installer may not automatically detect Visual Studio as the default editor for Unity. This may lead to missing Unity namespaces and missing debugging options. 
+
+- Follow this [guide](https://unity.com/how-to/debugging-with-microsoft-visual-studio-2022) so that Unity knows to use Visual Studio for debugging
+
+### Explore the C# code and build t1he project
 
 - The main scene is located in `Assets > Scenes > QuestNav`
 - The pose streaming code is located in `Assets > Robot > MotionStreamer.cs`.
 
 Unity will need to download and install several Android packages during the first build, so it might be helpful to connect to the headset over USB the first time to make sure it can download everything from the internet. Subsequent builds should be faster and will not require additional downloads. 
-
-The project should be configured for Android out of the box. If not, you may need to manually change the build target to Android in `File > Build Profiles`
 
 # FAQ
 ### Q: Are you doing anything to initialize its location? Or do you have an idea how you'd recommend teams to initialize its location?
