@@ -42,9 +42,8 @@ public class MotionStreamer : MonoBehaviour
 
     public TMP_InputField teamInput;
     public Button teamUpdateButton;
-    private TouchScreenKeyboard overlayKeyboard;
     public static string inputText = "9999";
-    private string teamNumber = "9999";
+    private string teamNumber = "";
 
 
     [SerializeField] public Transform vrCamera; // The VR camera transform
@@ -212,7 +211,7 @@ public class MotionStreamer : MonoBehaviour
     private void setInputBox(string team)
     {
         // Clear the input field
-        teamInput.text = string.Empty;
+        teamInput.text = "";
 
         // Try to get the placeholder as a TextMeshProUGUI
         TextMeshProUGUI placeholderText = teamInput.placeholder as TextMeshProUGUI;
@@ -245,7 +244,5 @@ public class MotionStreamer : MonoBehaviour
     private void OnInputFieldSelected(string text)
     {
         UnityEngine.Debug.Log("[MotionStreamer] Input Selected");
-        // Show the Oculus keyboard
-        overlayKeyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad);
     }
 }
