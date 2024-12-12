@@ -42,6 +42,8 @@ public class MotionStreamer : MonoBehaviour
 
     public TMP_InputField teamInput;
     public Button teamUpdateButton;
+    private TouchScreenKeyboard overlayKeyboard;
+    public static string inputText = "9999";
     private string teamNumber = "9999";
 
 
@@ -66,6 +68,8 @@ public class MotionStreamer : MonoBehaviour
         ConnectToRobot();
         // Register the click listener on the button
         teamUpdateButton.onClick.AddListener(UpdateTeamNumber);
+        // Subscribe to the TMP InputField's OnSelect event
+        teamInput.onSelect.AddListener(OnInputFieldSelected);
     }
 
     void LateUpdate()
@@ -194,6 +198,7 @@ public class MotionStreamer : MonoBehaviour
 
     public void UpdateTeamNumber()
     {
+        UnityEngine.Debug.Log("[MotionStreamer] Updating Team Number");
         // Retrieve the text from the input field
         teamNumber = teamInput.text;
 
@@ -235,5 +240,12 @@ public class MotionStreamer : MonoBehaviour
         string amPart = teamNumber.Length > 2 ? teamNumber.Substring(teamNumber.Length - 2) : teamNumber;
 
         return serverAddress.Replace("TE", tePart).Replace("AM", amPart);
+    }
+
+    private void OnInputFieldSelected(string text)
+    {
+        UnityEngine.Debug.Log("[MotionStreamer] Input Selected");
+        // Show the Oculus keyboard
+        overlayKeyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad);
     }
 }
